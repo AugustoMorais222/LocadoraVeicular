@@ -1,5 +1,6 @@
 package com.senai.aluguel_veiculos_api.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +9,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.senai.aluguel_veiculos_api.model.Aluguel;
+import com.senai.aluguel_veiculos_api.model.Cliente;
+import com.senai.aluguel_veiculos_api.model.Veiculo;
 import com.senai.aluguel_veiculos_api.repository.AluguelRepository;
+import com.senai.aluguel_veiculos_api.repository.ClienteRepository;
+import com.senai.aluguel_veiculos_api.repository.VeiculoRepository;
 
 @Service
 public class AluguelService {
 	@Autowired
 	private AluguelRepository aluguelRepository;
+	@Autowired
+	private VeiculoRepository veiculoRepository;
+	@Autowired
+	private ClienteRepository clienteRepository;
+	
 	
 	public Aluguel insert(Aluguel aluguel) {
 		return this.aluguelRepository.save(aluguel);
@@ -39,4 +49,42 @@ public class AluguelService {
 	public List<Aluguel> findAll(){
 		return this.aluguelRepository.findAll();
 	}
+	
+	public Aluguel registrarAluguel(Long clienteId, Long veiculoId, LocalDate inicio, LocalDate fim) {
+        Veiculo veiculo = veiculoRepository.findById(veiculoId)
+        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Veiculo não encontrado"));
+
+        if (!veiculo.getIsAlugado()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Veiculo não indisponivel");
+        }
+
+        Cliente cliente = clienteRepository.findById(clienteId)
+        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+
+        Aluguel aluguel = new Aluguel();
+        aluguel.setCliente(cliente);
+        aluguel.setVeiculo(veiculo);
+        aluguel.setDataInicio(inicio);
+        aluguel.setDataFim(fim);
+
+        veiculo.setDisponivel(false);
+        veiculoRepository.save(veiculo);
+
+        return aluguelRepository.save(aluguel);
+    }
+	
+	public List<Aluguel> findAlugueisAtivos() {
+        return aluguelRepository.findByDataFimGreaterThanEqual(LocalDate.now());
+    }
+	
+	public void retornarVeiculo(Long aluguelId) {
+        Aluguel aluguel = aluguelRepository.findById(aluguelId)
+        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aluguel não encontrado"));
+
+        Veiculo veiculo = aluguel.getVeiculo();
+        veiculo.setDisponivel(true);
+        veiculoRepository.save(veiculo);
+
+        aluguelRepository.delete(aluguel);
+    }
 }

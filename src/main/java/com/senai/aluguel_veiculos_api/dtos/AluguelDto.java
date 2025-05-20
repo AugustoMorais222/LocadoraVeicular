@@ -3,6 +3,7 @@ package com.senai.aluguel_veiculos_api.dtos;
 import java.time.LocalDate;
 
 public class AluguelDto {
+	private Long id;
     private Long clienteId;
     private Long veiculoId;
     private LocalDate dataInicio;
@@ -10,6 +11,18 @@ public class AluguelDto {
     
 	public AluguelDto() {
 	}
+	
+	
+	public Long getId() {
+		return id;
+	}
+
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
 	public Long getClienteId() {
 		return clienteId;
 	}

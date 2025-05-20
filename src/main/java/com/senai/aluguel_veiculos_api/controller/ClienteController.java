@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,24 +15,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.senai.aluguel_veiculos_api.model.Cliente;
-import com.senai.aluguel_veiculos_api.repository.ClienteRepository;
+import com.senai.aluguel_veiculos_api.service.ClienteService;
 
 @RestController
 @RequestMapping("/cliente")
+@CrossOrigin(origins = "*")
 public class ClienteController {
     @Autowired
-    private ClienteRepository clienteRepository;
+    private ClienteService clienteService;
 
     @PostMapping
-    public ResponseEntity<Cliente> insert(@RequestBody Cliente grupo) {
-        Cliente novoCliente = clienteRepository.save(grupo);
+    public ResponseEntity<Cliente> insert(@RequestBody Cliente cliente) {
+        Cliente novoCliente = clienteService.insert(cliente);
         return ResponseEntity.ok(novoCliente);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        if (clienteRepository.existsById(id)) {
-            clienteRepository.deleteById(id);
+        if (id != null) {
+            clienteService.delete(id);
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
@@ -39,9 +41,9 @@ public class ClienteController {
     }
 
     @PutMapping
-    public ResponseEntity<Cliente> update(@RequestBody Cliente grupo) {
-        if (clienteRepository.existsById(grupo.getId())) {
-            Cliente atualizado = clienteRepository.save(grupo);
+    public ResponseEntity<Cliente> update(@RequestBody Cliente cliente) {
+        if (cliente != null) {
+            Cliente atualizado = clienteService.update(cliente);
             return ResponseEntity.ok(atualizado);
         } else {
             return ResponseEntity.notFound().build();
@@ -50,9 +52,9 @@ public class ClienteController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> findById(@PathVariable Long id) {
-    	Cliente grupo = clienteRepository.findById(id).orElse(null);
-    	if (grupo != null) {
-    	    return ResponseEntity.ok(grupo);
+    	Cliente cliente = clienteService.findById(id);
+    	if (cliente != null) {
+    	    return ResponseEntity.ok(cliente);
     	} else {
     	    return ResponseEntity.notFound().build();
     	}
@@ -60,7 +62,7 @@ public class ClienteController {
 
     @GetMapping
     public ResponseEntity<List<Cliente>> findAll() {
-        List<Cliente> grupos = clienteRepository.findAll();
-        return ResponseEntity.ok(grupos);
+        List<Cliente> clientes = clienteService.findAll();
+        return ResponseEntity.ok(clientes);
     }
 }

@@ -25,8 +25,6 @@ public class Veiculo {
 	@Column
 	private Boolean disponivel;
 	
-	@Column
-	private Boolean isAlugado;
 	
 	
 	
@@ -35,14 +33,6 @@ public class Veiculo {
 	}
 
 	public Veiculo() {
-	}
-	
-	public Boolean getIsAlugado() {
-		return isAlugado;
-	}
-
-	public void setIsAlugado(Boolean isAlugado) {
-		this.isAlugado = isAlugado;
 	}
 
 	public Long getId() {

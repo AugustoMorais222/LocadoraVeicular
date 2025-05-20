@@ -54,7 +54,7 @@ public class AluguelService {
         Veiculo veiculo = veiculoRepository.findById(veiculoId)
         		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Veiculo não encontrado"));
 
-        if (!veiculo.getIsAlugado()) {
+        if (!veiculo.getDisponivel()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Veiculo não indisponivel");
         }
 
@@ -73,18 +73,4 @@ public class AluguelService {
         return aluguelRepository.save(aluguel);
     }
 	
-	public List<Aluguel> findAlugueisAtivos() {
-        return aluguelRepository.findByDataFimGreaterThanEqual(LocalDate.now());
-    }
-	
-	public void retornarVeiculo(Long aluguelId) {
-        Aluguel aluguel = aluguelRepository.findById(aluguelId)
-        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aluguel não encontrado"));
-
-        Veiculo veiculo = aluguel.getVeiculo();
-        veiculo.setDisponivel(true);
-        veiculoRepository.save(veiculo);
-
-        aluguelRepository.delete(aluguel);
-    }
 }
